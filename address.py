@@ -112,14 +112,16 @@ try:
         shutil.rmtree(work_folder_path)
     os.makedirs(work_folder_path)
     print(f"workフォルダのクリーニングが完了しました。")
+
     ### 住居表示ファイルの取得及び結合
     # address_download("住居表示ファイル名一覧ファイル名を指定",'結合住居表示ファイル名')
     #市区町村名 住居表示－街区マスター位置参照拡張 データセット
-    address_download("gaiku_url_list.txt",'work/combined_gaiku.csv')
+    address_download("input_list/gaiku_url_list.txt",'work/combined_gaiku.csv')
     print(f"市区町村名 住居表示－街区マスターが作成されました。")
     #市区町村名 住居表示－住居マスター位置参照拡張 データセット
-    address_download("jyuukyo_url_list.txt",'work/combined_jyuukyo.csv')
+    address_download("input_list/jyuukyo_url_list.txt",'work/combined_jyuukyo.csv')
     print(f"市区町村名 住居表示－住居マスターが作成されました。")
+
     ###　住居マスターに街区マスターを結合する
     # 1つ目のCSVファイルを読み込む
     df1 = pd.read_csv('work/combined_jyuukyo.csv')
@@ -132,6 +134,7 @@ try:
     # 結合結果を新しいCSVファイルとして保存
     merged_df.to_csv('result/merged_jyuukyo.csv', index=False)
     print(f"居住データベースが作成されました。")
+    
 # エラー処理
 except FileNotFoundError:
     print(f"ファイルが見つかりません。")
