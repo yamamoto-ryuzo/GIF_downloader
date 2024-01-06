@@ -58,6 +58,20 @@ def extract_files(zip_file_path, extract_to, work_folder, other_files_folder):
                 # 作業用フォルダに解凍されたZIPファイルを再帰的に処理
                 extract_files(os.path.join(nested_folder, file), nested_folder, work_folder, other_files_folder)
 
+
+### 仮想にあるフォルダ内のデータをすべて最上層に移動
+# 移動したいフォルダのパスを指定します
+# folder_path = '/path/to/your/folder'
+# move_folders_data_to_top(folder_path)
+def move_folders_data_to_top(folder_path):
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            try:
+                shutil.move(file_path, folder_path)
+            except shutil.Error as e:
+                print(f"Failed to move {file_path}: {e}")
+
 ### 住居表示ファイルの取得及び結合
 def address_download(file_name,combined_data_file):
     ### work/extracted_files　フォルダのクリーニング
@@ -180,9 +194,12 @@ def geo_download(file_name):
             other_files_folder = 'work/other_files_folder'
             extract_files(zip_file_path, extract_to, work_folder, other_files_folder)
             print(f"ZIPファイルの解凍が完了しました。")
-
+        ### 仮想にあるフォルダ内のデータをすべて最上層に移動
+        # 移動したいフォルダのパスを指定します
+        folder_path = 'work/other_files_folder'
+        move_folders_data_to_top(folder_path)
         ### フォルダ内のGEOファイルを結合
-        folder_path = "work/other_files_folder"
+        folder_path = 'work/other_files_folder'
         output_filename = "result/digital_national_land_information.shp"
         combine_shapefiles(folder_path, output_filename)
 
