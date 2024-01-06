@@ -21,9 +21,10 @@
  workフォルダには作業の状況が残ります
  ただし、work/extracted_filesフォルダ内は最後に作用した状況のみです  
 
-### [国土数値情報 地域・施設](hhttps://nlftp.mlit.go.jp/ksj/index.html)  []()
+### [国土数値情報 地域・施設](https://nlftp.mlit.go.jp/ksj/index.html)  []()
 **【利用シーン】**  
 　・公共施設の座標が知りたい  
 　・公共施設の所在地が知りたい  
+とりあえず、[町村役場等及び公的集会施設データ](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P05-v3_0.html)の全国をダウンロード一つのSHPファイルを構築まで完成
 1. 入力  
 1. 出力  
