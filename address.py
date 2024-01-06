@@ -130,7 +130,7 @@ try:
     # 同じ属性が重複する場合は街区データ側に接尾辞を追加
     merged_df = pd.merge(df1, df2, on='街区ユニークid', how='left', suffixes=('', '_街区'))
     # 結合結果を新しいCSVファイルとして保存
-    merged_df.to_csv('merged_jyuukyo.csv', index=False)
+    merged_df.to_csv('result/merged_jyuukyo.csv', index=False)
     print(f"居住データベースが作成されました。")
 # エラー処理
 except FileNotFoundError:
