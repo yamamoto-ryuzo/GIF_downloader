@@ -1,0 +1,4 @@
+https://nlftp.mlit.go.jp/ksj/gml/data/P28/P28-22/P28-22.zip
+https://nlftp.mlit.go.jp/ksj/gml/data/P05/P05-22/P05-22_GML.zip
+https://nlftp.mlit.go.jp/ksj/gml/data/P34/P34-14/P34-14_01_GML.zip
+https://nlftp.mlit.go.jp/ksj/gml/data/P34/P34-14/P34-14_01_GML.zip
