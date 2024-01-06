@@ -6,9 +6,6 @@
 # "input_list/digital_national_land_information_url_list.txt　にURLを入力
 ###　出力
 # データセットを統合し出力
-#'input_list/digital_national_land_informatio.csv' ファイルが出力されます
-# workフォルダには作業の状況が残ります
-# ただし、work/extracted_filesフォルダ内は最後に作用した状況のみです
 
 ##################################################################
 ######### モジュール(module)やパッケージ(package)の読み込み #########
