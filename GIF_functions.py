@@ -175,14 +175,23 @@ def geo_download(file_name):
     try:
         ### 指定ファイル内のファイル一覧を読み込む
         # ファイルを読み込みモードで開く
-        with open(file_name, "r") as file:
+        with open(file_name, "r", encoding='UTF-8') as file:
             # ファイルから行を1行ずつ読み込む
             file_list = file.readlines()
         # 各行の末尾の改行文字を削除
         file_list = [line.strip() for line in file_list]
         ### 読み込んだファイル一覧を順次処理
-        for file_path in file_list:
-            print(file_path)
+
+        for line in file_list:
+            line = line.strip()  # 各行の先頭および末尾の空白を削除
+            if ',' in line:  # ',' がデリミタとして使われていると仮定
+                file_path, title = line.split(',')
+                file_path = file_path.strip()  # ファイル名から空白を削除
+                title = title.strip()  # タイトルから空白を削除
+                print(f"ファイルパス: {file_path}, タイトル: {title}")
+            else:
+                file_path = line
+                print(f"ファイルパス: {file_path}")
             ### ファイルのダウンロード
             url = file_path
             local_filename = 'work/download.zip'
