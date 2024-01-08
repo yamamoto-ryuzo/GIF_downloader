@@ -63,14 +63,21 @@ def extract_files(zip_file_path, extract_to, work_folder, other_files_folder):
 # 移動したいフォルダのパスを指定します
 # folder_path = '/path/to/your/folder'
 # move_folders_data_to_top(folder_path)
-def move_folders_data_to_top(folder_path):
+def move_files_to_parent_folder(folder_path):
+    # フォルダ内のすべてのファイルを取得
+    #root: 現在走査しているディレクトリのパスです。
+    #dirs: そのrootディレクトリ内のディレクトリ名のリストです。
+    #files: そのrootディレクトリ内のファイル名のリストです。
     for root, dirs, files in os.walk(folder_path):
+        # ファイルを親フォルダに移動
         for file in files:
+            # ファイルのパスを取得
             file_path = os.path.join(root, file)
             try:
-                shutil.move(file_path, folder_path)
+                if folder_path != os.path.dirname(file_path):
+                    shutil.move(file_path, folder_path)
             except shutil.Error as e:
-                print(f"Failed to move {file_path}: {e}")
+                print(f"移動に失敗しました {file_path}: {e}")
 
 ### 住居表示ファイルの取得及び結合
 def address_download(file_name,combined_data_file):
@@ -180,18 +187,18 @@ def geo_download(file_name):
             file_list = file.readlines()
         # 各行の末尾の改行文字を削除
         file_list = [line.strip() for line in file_list]
-        ### 読み込んだファイル一覧を順次処理
-
+        # 読み込んだファイル一覧を順次処理
         for line in file_list:
             line = line.strip()  # 各行の先頭および末尾の空白を削除
             if ',' in line:  # ',' がデリミタとして使われていると仮定
-                file_path, title = line.split(',')
+                file_path, file_title = line.split(',')
                 file_path = file_path.strip()  # ファイル名から空白を削除
-                title = title.strip()  # タイトルから空白を削除
-                print(f"ファイルパス: {file_path}, タイトル: {title}")
+                file_title = file_title.strip()  # タイトルから空白を削除
+                print(f"ファイルパス: {file_path}, タイトル: {file_title}")
             else:
                 file_path = line
                 print(f"ファイルパス: {file_path}")
+
             ### ファイルのダウンロード
             url = file_path
             local_filename = 'work/download.zip'
@@ -206,7 +213,8 @@ def geo_download(file_name):
         ### 仮想にあるフォルダ内のデータをすべて最上層に移動
         # 移動したいフォルダのパスを指定します
         folder_path = 'work/other_files_folder'
-        move_folders_data_to_top(folder_path)
+        print(f"{folder_path}の下層にフォルダがある場合はすべて直下に移動します。")
+        move_files_to_parent_folder(folder_path)
         ### フォルダ内のGEOファイルを結合
         folder_path = 'work/other_files_folder'
         output_filename = "result/digital_national_land_information.shp"
