@@ -31,17 +31,26 @@ import GIF_functions
 try:
     ### work　フォルダのクリーニング
     work_folder_path = 'work'
-    if os.path.exists(work_folder_path):
-        shutil.rmtree(work_folder_path)
-    os.makedirs(work_folder_path)
-    print(f"workフォルダのクリーニングが完了しました。")
+    GIF_functions.clean_work_folder(work_folder_path)
 
     ### 住居表示ファイルの取得及び結合
     # address_download("住居表示ファイル名一覧ファイル名を指定",'結合住居表示ファイル名')
     #市区町村名 住居表示－街区マスター位置参照拡張 データセット
     GIF_functions.geo_download("input_list/digital_national_land_information_url_list.txt")
-    print(f"結合データが作成されました。")
-
+    folder_path = 'work/other_files_folder'
+    ###座標系と統一
+    target_epsg = 'EPSG:4326'
+    GIF_functions.unify_crs_in_folder(folder_path, target_epsg)
+    ### フォルダ内のGEOファイルを結合
+    folder_path = 'work/other_files_folder'
+    output_filename = 'result/digital_national_land_information.shp'
+    GIF_functions.combine_shapefiles(folder_path, output_filename)
+    #他の形式も作成
+    input_path = 'result/digital_national_land_information.shp'
+    output_path = 'result/digital_national_land_information.gpkg'
+    GIF_functions.convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='GPKG')
+    output_path = 'result/digital_national_land_information.csv'
+    GIF_functions.convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='csv')
 # エラー処理
 except FileNotFoundError:
     print(f"ファイルが見つかりません。")

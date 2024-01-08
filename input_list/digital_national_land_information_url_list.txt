@@ -1,4 +1,4 @@
-https://nlftp.mlit.go.jp/ksj/gml/data/P28/P28-22/P28-22.zip,国・都道府県の機関
-https://nlftp.mlit.go.jp/ksj/gml/data/P05/P05-22/P05-22_GML.zip,市町村役場等及び公的集会施設
-https://nlftp.mlit.go.jp/ksj/gml/data/P34/P34-14/P34-14_??_GML.zip,市区町村役場
-https://nlftp.mlit.go.jp/ksj/gml/data/P35/P35-18/P35-18_GML.zip,道の駅
+https://nlftp.mlit.go.jp/ksj/gml/data/P24/P24-12/P24-12_GML.zip,地場産業関連施設（ポイント）
+https://nlftp.mlit.go.jp/ksj/gml/data/P31/P31-13/P31-13_??.zip,物流拠点（ポイント）
+https://nlftp.mlit.go.jp/ksj/gml/data/P33/P33-14/P33-14_??_GML.zip,集客施設（ポイント）
+https://nlftp.mlit.go.jp/ksj/gml/data/P35/P35-18/P35-18_GML.zip,道の駅（ポイント）

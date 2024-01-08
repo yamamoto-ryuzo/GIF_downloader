@@ -19,6 +19,15 @@ import json
 ######### 関数定義 #########
 ###########################
 
+###フォルダのクリーニング
+#work_folder_path = 'work'
+#clean_work_folder(work_folder_path)
+def clean_work_folder(folder_path):
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
+    os.makedirs(folder_path)
+    print(f"{folder_path}フォルダのクリーニングが完了しました。")
+
 ###ファイルの中にある??を01－47の連番にして新しいファイルを作成する
 #input_filename = 'input.txt'  # 元のファイル名
 #output_filename = 'output.txt'  # 出力先のファイル名
@@ -43,13 +52,21 @@ def process_file(input_file, output_file):
 
 ### ファイルのダウンロード
 def download_file(url, local_filename):
-    # URLからファイルをダウンロードし、特定のローカルファイルパスに保存する
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-    return local_filename
+    try:
+        # URLからファイルをダウンロードし、特定のローカルファイルパスに保存する
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        return local_filename
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTPエラーが発生しました: {e}")
+    except IOError as e:
+        print(f"ファイル書き込みエラーが発生しました: {e}")
+    except Exception as e:
+        print(f"予期せぬエラーが発生しました: {e}")
+    return None
 
 ### 複数階層のZIPファイルを解凍
 ### ZIPファイルの中にZIPファイルがあるときは作業用フォルダに解凍
@@ -108,15 +125,32 @@ def move_files_to_parent_folder(folder_path):
 #target_epsg = 'EPSG:4326'
 #unify_crs_in_folder(folder_path, target_epsg)
 def unify_crs_in_folder(folder_path, target_epsg):
+    non_crs_folder = os.path.join(folder_path, 'NON_CRS')
+    os.makedirs(non_crs_folder, exist_ok=True)
+    
     for file in os.listdir(folder_path):
         if file.endswith('.shp'):
             file_path = os.path.join(folder_path, file)
             # Shapefileを読み込む
             gdf = gpd.read_file(file_path, encoding='shift_jis')
+            
+            # 座標系が不明な場合の処理
+            if gdf.crs is None:
+                base_name, _ = os.path.splitext(file)
+                # 関連ファイルをNON_CRDフォルダに移動
+                related_files = [f"{base_name}.shp", f"{base_name}.shx", f"{base_name}.dbf", f"{base_name}.prj", f"{base_name}.cpg"]
+                for related_file in related_files:
+                    related_file_path = os.path.join(folder_path, related_file)
+                    if os.path.exists(related_file_path):
+                        shutil.move(related_file_path, os.path.join(non_crs_folder, related_file))
+                        print(f"CRSが不明なファイル: {related_file} を NON_CRS フォルダに移動しました。")
+                continue
+            
             # 座標系を統一する
             gdf = gdf.to_crs(target_epsg)
             # ファイルを上書き保存する
             gdf.to_file(file_path, encoding='shift_jis')
+    print(f"すべてのShapefileを一つの座標系に統一しました。")
 
 ### データ形式変換
 #ESRI Shapefile: driver='ESRI Shapefile' (.shp)
@@ -282,19 +316,6 @@ def geo_download(file_name):
         folder_path = 'work/other_files_folder'
         print(f"{folder_path}の下層にフォルダがある場合はすべて直下に移動します。")
         move_files_to_parent_folder(folder_path)
-        ###座標系と統一
-        target_epsg = 'EPSG:4326'
-        unify_crs_in_folder(folder_path, target_epsg)
-        ### フォルダ内のGEOファイルを結合
-        folder_path = 'work/other_files_folder'
-        output_filename = 'result/digital_national_land_information.shp'
-        combine_shapefiles(folder_path, output_filename)
-        #他の形式も作成
-        input_path = 'result/digital_national_land_information.shp'
-        output_path = 'result/digital_national_land_information.gpkg'
-        convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='GPKG')
-        output_path = 'result/digital_national_land_information.csv'
-        convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='csv')
 
     # エラー処理
     except UnicodeDecodeError as e:
