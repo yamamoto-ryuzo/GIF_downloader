@@ -102,6 +102,22 @@ def move_files_to_parent_folder(folder_path):
             except shutil.Error as e:
                 print(f"移動に失敗しました {file_path}: {e}")
 
+### 指定されたフォルダ内のすべてのShapefileの座標系を統一する関数。
+# 使用例:
+#folder_path = 'path/to/your/folder'
+#target_epsg = 'EPSG:4326'
+#unify_crs_in_folder(folder_path, target_epsg)
+def unify_crs_in_folder(folder_path, target_epsg):
+    for file in os.listdir(folder_path):
+        if file.endswith('.shp'):
+            file_path = os.path.join(folder_path, file)
+            # Shapefileを読み込む
+            gdf = gpd.read_file(file_path, encoding='shift_jis')
+            # 座標系を統一する
+            gdf = gdf.to_crs(target_epsg)
+            # ファイルを上書き保存する
+            gdf.to_file(file_path, encoding='shift_jis')
+
 ### データ形式変換
 #ESRI Shapefile: driver='ESRI Shapefile' (.shp)
 #GeoPackage: driver='GPKG' (.gpkg)
@@ -266,6 +282,9 @@ def geo_download(file_name):
         folder_path = 'work/other_files_folder'
         print(f"{folder_path}の下層にフォルダがある場合はすべて直下に移動します。")
         move_files_to_parent_folder(folder_path)
+        ###座標系と統一
+        target_epsg = 'EPSG:4326'
+        unify_crs_in_folder(folder_path, target_epsg)
         ### フォルダ内のGEOファイルを結合
         folder_path = 'work/other_files_folder'
         output_filename = 'result/digital_national_land_information.shp'
