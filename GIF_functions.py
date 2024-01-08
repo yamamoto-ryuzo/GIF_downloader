@@ -18,6 +18,29 @@ import json
 ###########################
 ######### 関数定義 #########
 ###########################
+
+###ファイルの中にある??を01－47の連番にして新しいファイルを作成する
+#input_filename = 'input.txt'  # 元のファイル名
+#output_filename = 'output.txt'  # 出力先のファイル名
+#process_file(input_filename, output_filename)
+def process_file(input_file, output_file):
+    # ファイルからデータを読み込む
+    with open(input_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    # 条件を満たす行を増殖させて新しいリストに追加する
+    new_lines = []
+    for line in lines:
+        # ここで条件を確認し、??があれば01～47の連番に増殖させる（条件に合わせて変更してください）
+        if '??' in line:
+            for i in range(1, 48):
+                new_line = line.replace('??', f'{i:02d}')  # ??を01～47の連番で置換
+                new_lines.append(new_line)
+        else:
+            new_lines.append(line)
+    # 新しいファイルに書き込む
+    with open(output_file, 'w', encoding='utf-8') as file:
+        file.writelines(new_lines)
+
 ### ファイルのダウンロード
 def download_file(url, local_filename):
     # URLからファイルをダウンロードし、特定のローカルファイルパスに保存する
@@ -203,9 +226,14 @@ def combine_shapefiles(folder_path, output_filename):
 ### geoファイルの取得及び結合
 def geo_download(file_name):
     try:
+        #読み込み専用ファイルへの変換
+        #ファイルの中にある??を01－47の連番にして新しいファイルを作成する
+        work_file_name = file_name + '.work'
+        process_file(file_name, work_file_name)
+        print(f"作業用ファイル {work_file_name} を作成しました。")
         ### 指定ファイル内のファイル一覧を読み込む
         # ファイルを読み込みモードで開く
-        with open(file_name, "r", encoding='UTF-8') as file:
+        with open( work_file_name, "r", encoding='UTF-8') as file:
             # ファイルから行を1行ずつ読み込む
             file_list = file.readlines()
         # 各行の末尾の改行文字を削除
