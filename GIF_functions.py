@@ -79,6 +79,29 @@ def move_files_to_parent_folder(folder_path):
             except shutil.Error as e:
                 print(f"移動に失敗しました {file_path}: {e}")
 
+### データ形式変換
+#ESRI Shapefile: driver='ESRI Shapefile' (.shp)
+#GeoPackage: driver='GPKG' (.gpkg)
+#Keyhole Markup Language (KML): driver='KML' (.kml)
+#GeoJSON: driver='GeoJSON' (.geojson)
+#ただしCSVは以下で実行
+#gdf.to_csv('output.csv')
+# 使用例
+#input_path = 'path/to/your/input_data.shp'
+#output_path = 'path/to/your/output_data.gpkg'
+#convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='GPKG')
+def convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='GPKG'):
+    # データを読み込む
+    gdf = gpd.read_file(input_path)
+    # 指定された出力フォーマットでファイルに保存する
+    if output_format != 'csv':
+        gdf.to_file(output_path, driver=output_format)
+    else:
+        gdf.to_csv(output_path)
+    print(f"ファイルを変換しました：{output_path}")
+
+###################################################################################
+
 ### 住居表示ファイルの取得及び結合
 def address_download(file_name,combined_data_file):
     ### work/extracted_files　フォルダのクリーニング
@@ -217,8 +240,14 @@ def geo_download(file_name):
         move_files_to_parent_folder(folder_path)
         ### フォルダ内のGEOファイルを結合
         folder_path = 'work/other_files_folder'
-        output_filename = "result/digital_national_land_information.shp"
+        output_filename = 'result/digital_national_land_information.shp'
         combine_shapefiles(folder_path, output_filename)
+        #他の形式も作成
+        input_path = 'result/digital_national_land_information.shp'
+        output_path = 'result/digital_national_land_information.gpkg'
+        convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='GPKG')
+        output_path = 'result/digital_national_land_information.csv'
+        convert_format(input_path, output_path, input_format='ESRI Shapefile', output_format='csv')
 
     # エラー処理
     except UnicodeDecodeError as e:
