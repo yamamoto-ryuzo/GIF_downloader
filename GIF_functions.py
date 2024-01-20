@@ -14,6 +14,7 @@ import shutil
 #pip install geopandas
 import geopandas as gpd
 import json
+import fiona
 
 ###########################
 ######### 関数定義 #########
@@ -41,7 +42,8 @@ def process_file(input_file, output_file):
     for line in lines:
         # ここで条件を確認し、??があれば01～47の連番に増殖させる（条件に合わせて変更してください）
         if '??' in line:
-            for i in range(1, 48):
+            #とりあえず全国だと大きすぎたので40：福岡県へ修正
+            for i in range(40, 41):
                 new_line = line.replace('??', f'{i:02d}')  # ??を01～47の連番で置換
                 new_lines.append(new_line)
         else:
@@ -243,37 +245,24 @@ def address_download(file_name,combined_data_file):
     print(f"街区ユニークidを追加しました。")
     return
 
-###geoファイルを結合
-#指定フォルダのすべてのSHPファイルを結合して指定のファイル名にする関数
-#結合候補のファイルを表示
-# 使用例
-#folder_path = "指定されたフォルダのパス"
-#output_filename = "結合されたファイル名.shp"
-#combine_shapefiles(folder_path, output_filename)
-def combine_shapefiles(folder_path, output_filename):
-    shp_files = [file for file in os.listdir(folder_path) if file.endswith(".shp")]
-    
-    if len(shp_files) == 0:
-        print("指定されたフォルダにSHPファイルが見つかりませんでした。")
-        return
-    print("結合候補のファイル:")
-    for file in shp_files:
-        print(file)
-    # 最初のファイルをベースにして読み込み
-    # 文字コード明示
-    gdf_list = [gpd.read_file(os.path.join(folder_path, shp_files[0]), encoding='shift_jis')]
-    # 他のファイルをリストに追加
-    for file in shp_files[1:]:
-        data = gpd.read_file(os.path.join(folder_path, file))
-        gdf_list.append(data)
-    # リスト内のすべてのGeoDataFrameを結合
-    combined_gdf = gpd.GeoDataFrame(pd.concat(gdf_list, ignore_index=True), crs=gdf_list[0].crs)
-    # 結合したデータを保存
-    # 文字コードを明示
-    combined_gdf.to_file(output_filename, encoding='shift_jis')
-    print(f"ファイル {output_filename} に結合されたデータを保存しました。")
+def merge_geopackages(input_folder, output_gpkg):
+    # フォルダ内のすべての GeoPackage ファイルをリストアップ
+    gpkg_files = [f for f in os.listdir(input_folder) if f.endswith('.gpkg')]
 
-### geoファイルの取得及び結合
+    # 最初の GeoPackage ファイルをベースとして読み込む
+    merged_gdf = gpd.read_file(os.path.join(input_folder, gpkg_files[0]))
+
+    # 他の GeoPackage ファイルを順次マージ
+    for gpkg_file in gpkg_files[1:]:
+        gdf_to_merge = gpd.read_file(os.path.join(input_folder, gpkg_file))
+        merged_gdf = gpd.GeoDataFrame(pd.concat([merged_gdf, gdf_to_merge], ignore_index=True))
+
+    # マージしたデータを新しい GeoPackage ファイルに保存
+    merged_gdf.to_file(output_gpkg, driver="GPKG")
+
+
+
+### geoファイルの取得及び各県のデータを１ファイルに結合
 def geo_download(file_name):
     try:
         #読み込み専用ファイルへの変換
@@ -322,5 +311,54 @@ def geo_download(file_name):
         print(f"UnicodeDecodeError: {e}")
         # エラーが発生した場合の処理をスキップする
         pass
-
     return
+
+
+def replace_attributes(folder_path, csv_file_path):
+    # フォルダ内のすべてのGPKGファイルに対して処理を行う
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".gpkg"):
+            # GPKGファイルを読み込む
+            gpkg_path = os.path.join(folder_path, filename)
+            gdf = gpd.read_file(gpkg_path)
+
+            # CSVファイルを読み込む
+            csv_data = pd.read_csv(csv_file_path)
+
+            # 属性の置き換えを行う
+            for index, row in csv_data.iterrows():
+                shp_attribute_name = row['shp属性名']
+                attribute_name = row['属性名']
+
+                if shp_attribute_name in gdf.columns:
+                    gdf[attribute_name] = gdf[shp_attribute_name]
+                    gdf = gdf.drop(columns=[shp_attribute_name])
+
+            # 置き換えたデータを新しいGPKGファイルとして保存
+            new_gpkg_path = os.path.join(folder_path, filename)
+            gdf.to_file(new_gpkg_path, driver='GPKG')
+            print(f"{filename}の属性をコードから日本語に置き換えました。")
+
+
+def convert_shp_to_gpkg(input_folder, output_folder):
+    # SHPファイルが格納されている入力フォルダ
+    shp_files = [f for f in os.listdir(input_folder) if f.endswith('.shp')]
+
+    # GPKGファイルの出力フォルダ
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for shp_file in shp_files:
+        shp_path = os.path.join(input_folder, shp_file)
+
+        # .shpを.gpkgに置き換えてGPKGファイル名を作成
+        gpkg_file = os.path.splitext(shp_file)[0] + '.gpkg'
+        gpkg_path = os.path.join(output_folder, gpkg_file)
+
+        # Geopandasを使用してSHPファイルを読み込む
+        gdf = gpd.read_file(shp_path)
+
+        # GeoPackageに書き込む
+        gdf.to_file(gpkg_path, driver='GPKG')
+
+        print(f"{shp_file} を {gpkg_file} に変換しました")
