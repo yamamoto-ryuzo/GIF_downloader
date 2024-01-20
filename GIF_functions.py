@@ -339,7 +339,26 @@ def replace_attributes(folder_path, csv_file_path):
             gdf.to_file(new_gpkg_path, driver='GPKG')
             print(f"{filename}の属性をコードから日本語に置き換えました。")
 
+### フォルダ内のすべてのSHPにジオメトリの経度X、緯度Y座標属性値を追加
+def add_coordinates_to_shapefiles(folder_path):
+    # フォルダ内のすべての Shapefile ファイルを処理
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".shp"):
+            # Shapefile ファイルのパスを構築
+            shp_path = os.path.join(folder_path, filename)
+            
+            # GeoDataFrame を読み込む
+            gdf = gpd.read_file(shp_path)
+            
+            # ジオメトリから 緯度と経度を取得
+            gdf['緯度'] = gdf.geometry.y
+            gdf['経度'] = gdf.geometry.x
+            
+            # 新しい属性を付加した GeoDataFrame を保存
+            gdf.to_file(shp_path, encoding='shift_jis')
+            print(f"ファイル{shp_path}にジオメトリより経度X、緯度Y座標属性値を追加しました。")
 
+### フォルダ内のすべてのSHPファイルをGPKGにコンバート
 def convert_shp_to_gpkg(input_folder, output_folder):
     # SHPファイルが格納されている入力フォルダ
     shp_files = [f for f in os.listdir(input_folder) if f.endswith('.shp')]
@@ -362,3 +381,4 @@ def convert_shp_to_gpkg(input_folder, output_folder):
         gdf.to_file(gpkg_path, driver='GPKG')
 
         print(f"{shp_file} を {gpkg_file} に変換しました")
+

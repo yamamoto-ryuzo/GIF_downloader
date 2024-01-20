@@ -39,6 +39,8 @@ try:
     target_epsg = 'EPSG:4326'
     GIF_functions.unify_crs_in_folder(folder_path, target_epsg)
 
+### フォルダ内のすべてのSHPにジオメトリの経度X、緯度Y座標属性値を追加
+    GIF_functions.add_coordinates_to_shapefiles(folder_path)
 
     GIF_functions.convert_shp_to_gpkg(folder_path,folder_path)
     ### エンコードをすべてUTF-8へ変更
@@ -54,7 +56,6 @@ try:
     ### フォルダ内のGEOファイルを結合
     folder_path = 'work/other_files_folder'
     output_file_path = 'result/digital_national_land_information.gpkg'
-    selected_attributes = ['名称', '所在地', '都道府県名', '市区町村名']
     GIF_functions.merge_geopackages(folder_path, output_file_path)
 
     ### 他の形式も作成
