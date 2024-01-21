@@ -29,7 +29,7 @@
 **【利用シーン】**  
 　・公共施設の座標が知りたい  
 　・公共施設の所在地が知りたい  
-とりあえず、[町村役場等及び公的集会施設データ](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P05-v3_0.html)の全国をダウンロード一つのSHPファイルを構築まで完成
+
 1. GIFコードへの変換ルール  
   [自治体標準オープンデータセット一覧の属性名称](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)　に統一
 
@@ -57,7 +57,7 @@
 ・住所・所在地,当該施設の所在地,文字列型（CharacterString）,P33_007  
 ・所在地,市区町村役場等の所在地住所,文字列型（CharacterString）,P34_004  
 
-「名称」  　
+「名称」  
 ・工業用地名,工業団地名または単独工場の名称,文字列型（CharacterString）,L05_002  
 ・発電施設名称,当該発電施設の名称,文字列型,P03_0002  
 ・施設名称,医療施設の名称,文字列型（CharacterString）,P04_002  
