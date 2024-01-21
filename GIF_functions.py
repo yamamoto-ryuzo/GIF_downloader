@@ -85,7 +85,6 @@ def extract_files(zip_file_path, extract_to, work_folder, other_files_folder):
         file_list = zip_ref.namelist()
         for file in file_list:
             file_path = os.path.join(extract_to, file)
-            
             # フォルダの場合はスキップ
             if file.endswith('/'):
                 continue
@@ -145,14 +144,14 @@ def unify_crs_in_folder(folder_path, target_epsg):
                     related_file_path = os.path.join(folder_path, related_file)
                     if os.path.exists(related_file_path):
                         shutil.move(related_file_path, os.path.join(non_crs_folder, related_file))
-                        print(f"CRSが不明なファイル: {related_file} を NON_CRS フォルダに移動しました。")
+                        print(f"CRSが不明なため【処理対象外】とするため、ファイル {related_file} を NON_CRS フォルダに移動しました。")
                 continue
             
             # 座標系を統一する
             gdf = gdf.to_crs(target_epsg)
             # ファイルを上書き保存する
             gdf.to_file(file_path, encoding='shift_jis')
-    print(f"すべてのShapefileを一つの座標系に統一しました。")
+    print(f"すべてのShapefileを座標系【{gdf.crs}】に統一しました。")
 
 ### データ形式変換
 #ESRI Shapefile: driver='ESRI Shapefile' (.shp)
@@ -245,54 +244,44 @@ def address_download(file_name,combined_data_file):
     print(f"街区ユニークidを追加しました。")
     return
 
-def merge_geopackages(input_folder, output_gpkg):
-    # フォルダ内のすべての GeoPackage ファイルをリストアップ
-    gpkg_files = [f for f in os.listdir(input_folder) if f.endswith('.gpkg')]
-
-    # 最初の GeoPackage ファイルをベースとして読み込む
-    merged_gdf = gpd.read_file(os.path.join(input_folder, gpkg_files[0]))
-
-    # 他の GeoPackage ファイルを順次マージ
-    for gpkg_file in gpkg_files[1:]:
-        gdf_to_merge = gpd.read_file(os.path.join(input_folder, gpkg_file))
-        merged_gdf = gpd.GeoDataFrame(pd.concat([merged_gdf, gdf_to_merge], ignore_index=True))
-
-    # マージしたデータを新しい GeoPackage ファイルに保存
-    merged_gdf.to_file(output_gpkg, driver="GPKG")
-
-
-
 ### geoファイルの取得及び各県のデータを１ファイルに結合
+# 先頭に#があるときはスキップ　コメントアウト
 def geo_download(file_name):
     try:
-        #読み込み専用ファイルへの変換
-        #ファイルの中にある??を01－47の連番にして新しいファイルを作成する
+        # 読み込み専用ファイルへの変換
+        # ファイルの中にある??を01－47の連番にして新しいファイルを作成する
         work_file_name = file_name + '.work'
         process_file(file_name, work_file_name)
         print(f"作業用ファイル {work_file_name} を作成しました。")
-        ### 指定ファイル内のファイル一覧を読み込む
-        # ファイルを読み込みモードで開く
-        with open( work_file_name, "r", encoding='UTF-8') as file:
-            # ファイルから行を1行ずつ読み込む
+
+        # 指定ファイル内のファイル一覧を読み込む
+        with open(work_file_name, "r", encoding='UTF-8') as file:
             file_list = file.readlines()
-        # 各行の末尾の改行文字を削除
+
         file_list = [line.strip() for line in file_list]
+
         # 読み込んだファイル一覧を順次処理
         for line in file_list:
-            line = line.strip()  # 各行の先頭および末尾の空白を削除
+            line = line.strip()
+
+            # 行の先頭が '#' の場合はスキップ
+            if line.startswith('#'):
+                continue
+
             if ',' in line:  # ',' がデリミタとして使われていると仮定
                 file_path, file_title = line.split(',')
-                file_path = file_path.strip()  # ファイル名から空白を削除
-                file_title = file_title.strip()  # タイトルから空白を削除
+                file_path = file_path.strip()
+                file_title = file_title.strip()
                 print(f"ファイルパス: {file_path}, タイトル: {file_title}")
             else:
                 file_path = line
                 print(f"ファイルパス: {file_path}")
 
-            ### ファイルのダウンロード
+            # ファイルのダウンロード
             url = file_path
             local_filename = 'work/download.zip'
             download_file(url, local_filename)
+
             # ZIPファイル内の全てのファイルを解凍
             zip_file_path = 'work/download.zip'
             extract_to = 'work/extracted_files'
@@ -300,17 +289,16 @@ def geo_download(file_name):
             other_files_folder = 'work/other_files_folder'
             extract_files(zip_file_path, extract_to, work_folder, other_files_folder)
             print(f"ZIPファイルの解凍が完了しました。")
-        ### 仮想にあるフォルダ内のデータをすべて最上層に移動
-        # 移動したいフォルダのパスを指定します
+
+        # 仮想にあるフォルダ内のデータをすべて最上層に移動
         folder_path = 'work/other_files_folder'
         print(f"{folder_path}の下層にフォルダがある場合はすべて直下に移動します。")
         move_files_to_parent_folder(folder_path)
 
-    # エラー処理
     except UnicodeDecodeError as e:
         print(f"UnicodeDecodeError: {e}")
         # エラーが発生した場合の処理をスキップする
-        pass
+
     return
 
 
@@ -362,23 +350,78 @@ def add_coordinates_to_shapefiles(folder_path):
 def convert_shp_to_gpkg(input_folder, output_folder):
     # SHPファイルが格納されている入力フォルダ
     shp_files = [f for f in os.listdir(input_folder) if f.endswith('.shp')]
-
     # GPKGファイルの出力フォルダ
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-
     for shp_file in shp_files:
         shp_path = os.path.join(input_folder, shp_file)
-
         # .shpを.gpkgに置き換えてGPKGファイル名を作成
         gpkg_file = os.path.splitext(shp_file)[0] + '.gpkg'
         gpkg_path = os.path.join(output_folder, gpkg_file)
-
         # Geopandasを使用してSHPファイルを読み込む
         gdf = gpd.read_file(shp_path)
-
         # GeoPackageに書き込む
         gdf.to_file(gpkg_path, driver='GPKG')
-
         print(f"{shp_file} を {gpkg_file} に変換しました")
 
+
+### フォルダ内のすべてのジオメトリをPOINTに変更
+def convert_geometries_to_points(folder_path):
+    # フォルダ内のgpkgファイルを取得
+    gpkg_files = [f for f in os.listdir(folder_path) if f.endswith('.gpkg')]
+    for gpkg_file in gpkg_files:
+        file_path = os.path.join(folder_path, gpkg_file)
+        # GeoDataFrameを読み込む
+        gdf = gpd.read_file(file_path)
+        # ジオメトリを変換
+        gdf['geometry'] = gdf['geometry'].apply(convert_geometry)
+        # 変換後のGeoDataFrameを保存
+        output_file_path = os.path.join(folder_path, f"{gpkg_file}")
+        gdf.to_file(output_file_path, driver='GPKG')
+# ジオメトリをポイントに変換する関数
+def convert_geometry(geom):
+    if geom.geom_type == 'LineString':
+        # ラインの中心を取得して新しいジオメトリを作成
+        new_geom = LineString([geom.centroid])
+        print(f"ラインをポイントに変換しました。")
+    elif geom.geom_type == 'Polygon':
+        # ポリゴンの重心を取得して新しいジオメトリを作成
+        new_geom = Point(geom.centroid)
+        print(f"ポリゴンをポイントに変換しました。")
+    else:
+        # その他のジオメトリはそのまま保持
+        new_geom = geom
+    return new_geom
+
+### フォルダ内のすべてのgpkgファイルをマージします。
+# フォルダ内のすべてのgpkgファイルをマージする関数
+def merge_geopackages(input_folder, output_file):
+    try:
+        print(f"{input_folder}フォルダ内のすべてのgpkgファイルをマージして、{output_file}に保存します。")
+        # フォルダ内のgpkgファイルをソートして取得
+        gpkg_files = sorted([f for f in os.listdir(input_folder) if f.endswith('.gpkg')])
+        # ファイルが存在しない場合はエラーを発生させる
+        if not gpkg_files:
+            raise ValueError("フォルダ内にGeoPackageファイルが見つかりません。")
+        # 初期化
+        merged_gdf = None
+        # 各GeoPackageファイルを順番に処理
+        for gpkg_file in gpkg_files:
+            # 各GeoPackageファイルを読み込む
+            input_path = os.path.join(input_folder, gpkg_file)
+            gdf_to_merge = gpd.read_file(input_path)
+            # マージを実行
+            if merged_gdf is None:
+                # 最初のファイルをベースとして使用
+                merged_gdf = gdf_to_merge.copy()
+                print(f"{gpkg_file} をベースファイルとして読み込みました。")
+            else:
+                # 既存のGeoDataFrameとマージ
+                merged_gdf = gpd.GeoDataFrame(pd.concat([merged_gdf, gdf_to_merge], ignore_index=True))
+                print(f"{gpkg_file} をマージしました")
+        # マージしたデータを一つのGeoPackageファイルに保存
+        merged_gdf.to_file(output_file, driver="GPKG")
+        print(f"マージしたデータを {output_file} に保存しました")
+        print("全てのファイルのマージと保存が完了しました。")
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
