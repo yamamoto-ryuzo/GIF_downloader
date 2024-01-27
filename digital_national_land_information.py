@@ -43,8 +43,6 @@ try:
     GIF_functions.add_coordinates_to_shapefiles(folder_path)
 
     GIF_functions.convert_shp_to_gpkg(folder_path,folder_path)
-    ### エンコードをすべてUTF-8へ変更
-    #GIF_functions.convert_shp_to_utf8(folder_path)
 
     ### SHP属性名コードを日本語属性名に変更
     # 対象のSHPファイルが含まれるフォルダのパス
@@ -53,8 +51,8 @@ try:
     GIF_functions.replace_attributes(folder_path,csv_file_path)
 
     ### フォルダ内のすべてのジオメトリをPOINTに変更
-    #gpkg_folder_path = 'work/other_files_folder'
-    #GIF_functions.convert_geometries_to_points(gpkg_folder_path)
+    gpkg_folder_path = 'work/other_files_folder'
+    GIF_functions.convert_geometries_to_points(gpkg_folder_path)
 
     ### フォルダ内のGEOファイルを結合
     folder_path = 'work/other_files_folder'

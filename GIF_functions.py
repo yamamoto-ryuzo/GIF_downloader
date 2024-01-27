@@ -120,6 +120,20 @@ def move_files_to_parent_folder(folder_path):
             except shutil.Error as e:
                 print(f"移動に失敗しました {file_path}: {e}")
 
+### 指定のファイルからEPSGコードを返す
+### ただし、ファイルにの先頭9文字は　EPSG:****　の書式を前提とする。
+def return_EPSG( search_string,file_name):
+    result = None
+    search_prefix = search_string[:6]  # 検索文字列の先頭6文字を取得
+    print(f"    {search_prefix}のEPSGコードを検索します。")
+    with open(file_name, 'r', encoding='utf-8') as file:
+        for line in file:
+            if search_prefix in line:
+                result = line[:9]
+                print(f"    EPSGコードがありました：{result}")
+                break
+    return result
+
 ### 指定されたフォルダ内のすべてのShapefileの座標系を統一する関数。
 # 使用例:
 #folder_path = 'path/to/your/folder'
@@ -137,16 +151,21 @@ def unify_crs_in_folder(folder_path, target_epsg):
             
             # 座標系が不明な場合の処理
             if gdf.crs is None:
-                base_name, _ = os.path.splitext(file)
-                # 関連ファイルをNON_CRDフォルダに移動
-                related_files = [f"{base_name}.shp", f"{base_name}.shx", f"{base_name}.dbf", f"{base_name}.prj", f"{base_name}.cpg"]
-                for related_file in related_files:
-                    related_file_path = os.path.join(folder_path, related_file)
-                    if os.path.exists(related_file_path):
-                        shutil.move(related_file_path, os.path.join(non_crs_folder, related_file))
-                        print(f"CRSが不明なため【処理対象外】とするため、ファイル {related_file} を NON_CRS フォルダに移動しました。")
-                continue
-            
+                print(f"{file}のCRSが設定されていません。")
+                EPSG_code = return_EPSG(file, "input_list/digital_national_land_information_url_list.txt")
+                if EPSG_code == 'EPSG:****':
+                    base_name, _ = os.path.splitext(file)
+                    # 関連ファイルをNON_CRSフォルダに移動
+                    related_files = [f"{base_name}.shp", f"{base_name}.shx", f"{base_name}.dbf", f"{base_name}.prj", f"{base_name}.cpg"]
+                    for related_file in related_files:
+                        related_file_path = os.path.join(folder_path, related_file)
+                        if os.path.exists(related_file_path):
+                            shutil.move(related_file_path, os.path.join(non_crs_folder, related_file))
+                            print(f"    CRSが不明なため【処理対象外】とするため、ファイル {related_file} を NON_CRS フォルダに移動しました。")
+                    continue
+                else:
+                    gdf.crs = EPSG_code
+                    print(f"    SHPの現在のCRSを {EPSG_code} に設定しました。")
             # 座標系を統一する
             gdf = gdf.to_crs(target_epsg)
             # ファイルを上書き保存する
@@ -249,7 +268,9 @@ def address_download(file_name,combined_data_file):
 def geo_download(file_name):
     try:
         # 読み込み専用ファイルへの変換
-        # ファイルの中にある??を01－47の連番にして新しいファイルを作成する
+        ###############################################################
+        # ファイルの中にある??を01－47の連番にして新しいファイルを作成する #
+        ###############################################################
         work_file_name = file_name + '.work'
         process_file(file_name, work_file_name)
         print(f"作業用ファイル {work_file_name} を作成しました。")
@@ -260,7 +281,9 @@ def geo_download(file_name):
 
         file_list = [line.strip() for line in file_list]
 
-        # 読み込んだファイル一覧を順次処理
+        #################################
+        # 読み込んだファイル一覧を順次処理 #
+        #################################
         for line in file_list:
             line = line.strip()
 
@@ -268,16 +291,19 @@ def geo_download(file_name):
             if line.startswith('#'):
                 continue
 
-            if ',' in line:  # ',' がデリミタとして使われていると仮定
-                file_path, file_title = line.split(',')
+            # ',' がデリミタとして使われていると仮定
+            if ',' in line:  
+                EPSG_code, file_path, file_title = line.split(',')
+                EPSG_code = EPSG_code.strip()
                 file_path = file_path.strip()
                 file_title = file_title.strip()
-                print(f"ファイルパス: {file_path}, タイトル: {file_title}")
+                print(f"EPSG_code: {EPSG_code}, ファイルパス: {file_path}, タイトル: {file_title}")
             else:
                 file_path = line
                 print(f"ファイルパス: {file_path}")
 
             # ファイルのダウンロード
+            
             url = file_path
             local_filename = 'work/download.zip'
             download_file(url, local_filename)
