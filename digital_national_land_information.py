@@ -56,13 +56,12 @@ try:
 
     ### フォルダ内のGEOファイルを結合
     folder_path = 'work/other_files_folder'
-    output_file_path = 'result/digital_national_land_information.gpkg'
-    GIF_functions.merge_geopackages(folder_path, output_file_path)
+    gpkg_file_path = 'result/digital_national_land_information.gpkg'
+    GIF_functions.merge_geopackages(folder_path, gpkg_file_path)
 
     ### 他の形式も作成
-    input_path = 'result/digital_national_land_information.gpkg'
-    output_path = 'result/digital_national_land_information.csv'
-    GIF_functions.convert_format(input_path, output_path, input_format='gpkg', output_format='csv')
+    csv_file_path = 'result/digital_national_land_information.csv'
+    GIF_functions.convert_format(gpkg_file_path, csv_file_path, input_format='gpkg', output_format='csv')
 # エラー処理
 except FileNotFoundError:
     print(f"ファイルが見つかりません。")
