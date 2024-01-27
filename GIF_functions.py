@@ -42,9 +42,11 @@ def process_file(input_file, output_file):
     for line in lines:
         # ここで条件を確認し、??があれば01～47の連番に増殖させる（条件に合わせて変更してください）
         if '??' in line:
+            # ??を01～47の連番で置換
+            # range(1, 48)
             #とりあえず全国だと大きすぎたので40：福岡県へ修正
-            for i in range(40, 41):
-                new_line = line.replace('??', f'{i:02d}')  # ??を01～47の連番で置換
+            for i in range(1, 48):
+                new_line = line.replace('??', f'{i:02d}')
                 new_lines.append(new_line)
         else:
             new_lines.append(line)
