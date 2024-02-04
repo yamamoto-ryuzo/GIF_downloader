@@ -32,6 +32,7 @@
   ・任意の県データ取得への変更  
   ・EPSGコードの正しい設定  
   ・市区町村名 住居表示と統合
+  ・全国地方公共団体コードから所在地_都道府県,所在地_市区町村がない場合にデータを補完   
 
 ### [市区町村名 住居表示](https://nlftp.mlit.go.jp/cgi-bin/isj/dls/_choose_method.cgi)　[address.py](address.py)  
 **【利用シーン】**  
