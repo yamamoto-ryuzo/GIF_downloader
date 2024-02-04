@@ -1,6 +1,8 @@
 # GIF_downloader  
 ## 開発主旨  
-[自治体標準オープンデータセット](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)をダウンロードして、不足しているデータがあれば自動補完してくれることを目指します。  
+[自治体標準オープンデータセット](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)をダウンロードして、不足しているデータがあれば自動補完してくれることを目指します。    
+ダウンロードしたデータは以下でPostgRESTとして公開予定をしています。（たまに試験起動してます）  
+　https://github.com/yamamoto-ryuzo/PostgREST-installation-Japanese-memo/blob/main/%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95.md  
 
 ## 仕様
 　・Pythonを設置したフォルダ以下へのアクセス権および作業領域・データ保持が可能であること  
