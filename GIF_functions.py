@@ -2,6 +2,7 @@
 ######### モジュール(module)やパッケージ(package)の読み込み #########
 ##################################################################
 #Webページやデータを取得
+import csv
 import requests
 #ZIPの圧縮・解凍
 import zipfile
@@ -40,14 +41,12 @@ def process_file(input_file, output_file):
     # 条件を満たす行を増殖させて新しいリストに追加する
     new_lines = []
     for line in lines:
-        # ここで条件を確認し、??があれば01～47の連番に増殖させる（条件に合わせて変更してください）
         if '??' in line:
-            # ??を01～47の連番で置換
-            # range(1, 48)
-            #とりあえず全国だと大きすぎたので40：福岡県へ修正
-            for i in range(1, 48):
-                new_line = line.replace('??', f'{i:02d}')
-                new_lines.append(new_line)
+            with open('./input_list/prefecture_code_list_work.csv', 'r', encoding='utf-8') as file:
+                for prefecture in file:
+                    new_line = line.replace('??', prefecture[:2])
+                    new_lines.append(new_line)
+                    print(prefecture)
         else:
             new_lines.append(line)
     # 新しいファイルに書き込む

@@ -29,7 +29,6 @@ import GIF_functions
 ######## メイン #########
 ########################
 try:
-    ### work　フォルダのクリーニング
     work_folder_path = 'work'
     GIF_functions.clean_work_folder(work_folder_path)
     ### geoファイルの取得及び各県のデータを１ファイルに結合
