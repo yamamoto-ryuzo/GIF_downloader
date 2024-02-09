@@ -32,7 +32,18 @@
   ・任意の県データ取得への変更  
   ・EPSGコードの正しい設定  
   ・市区町村名 住居表示と統合
-  ・全国地方公共団体コードから所在地_都道府県,所在地_市区町村がない場合にデータを補完   
+  ・全国地方公共団体コードから所在地_都道府県,所在地_市区町村がない場合にデータを補完
+
+1.設定情報  
+  ・任意の県データ取得方法  
+　下記ファイルを参考に  
+　　https://github.com/yamamoto-ryuzo/GIF_downloader/blob/main/input_list/prefecture_code_list.csv   
+　取得したい県を下記ファイルにコピー  
+　　https://github.com/yamamoto-ryuzo/GIF_downloader/blob/main/input_list/prefecture_code_list_work.csv  
+
+1. 使用例
+　データベース　PostgreSQL　に設置し、PostgREST　にて公開している例はこちら  
+　https://github.com/yamamoto-ryuzo/PostgREST-installation-Japanese-memo/blob/main/使用方法.md
 
 ### [市区町村名 住居表示](https://nlftp.mlit.go.jp/cgi-bin/isj/dls/_choose_method.cgi)　[address.py](address.py)  
 **【利用シーン】**  
@@ -40,8 +51,6 @@
 　・座標の住居が知りたい  
 　・住居等の全国地方公共団体コード,町字idが知りたい  
 　・全国地方公共団体コード,町字idの都道府県名,市区町村名,大字・町丁目名が知りたい  
-現在は、北九州市に特化しています。  
-最終的には、全国　OR　市区町村を選択できるよようになるといいな～～～  
 1. 入力  
  市区町村名 住居表示－街区マスター位置参照拡張 データセット  
  "gaiku_url_list.txt　にURLを入力  
