@@ -46,7 +46,7 @@ def process_file(input_file, output_file):
                 for prefecture in file:
                     new_line = line.replace('??', prefecture[:2])
                     new_lines.append(new_line)
-                    print(prefecture)
+                    print(new_line)
         else:
             new_lines.append(line)
     # 新しいファイルに書き込む
