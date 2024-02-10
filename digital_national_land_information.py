@@ -58,6 +58,10 @@ try:
     gpkg_file_path = 'result/digital_national_land_information.gpkg'
     GIF_functions.merge_geopackages(folder_path, gpkg_file_path)
 
+    ###
+    csv_file_path = 'input_list/AdminiBoundary_CD.csv'
+    GIF_functions.find_final_city(gpkg_file_path, csv_file_path)
+
     ### 他の形式も作成
     csv_file_path = 'result/digital_national_land_information.csv'
     GIF_functions.convert_format(gpkg_file_path, csv_file_path, input_format='gpkg', output_format='csv')
