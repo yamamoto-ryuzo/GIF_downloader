@@ -460,16 +460,21 @@ def find_final_city(gpkg_file, csv_file):
     # CSVデータを読み込む
     # データタイプを str に指定
     csv_data = pd.read_csv(csv_file, encoding='UTF-8', delimiter=',', dtype=str)
-    print(f"補完データは以下の通りです。\n{csv_data}")
+    #print(f"補完データは以下の通りです。\n{csv_data}")
     # もし['所在地_市区町村']がgdfに存在しない場合、列を追加する
     if '所在地_市区町村' not in gdf.columns:
         # 新しい列を作成し、None を設定する 
         gdf['所在地_市区町村'] = None
         print(f"[所在地_市区町村]属性を追加しました。")
+    # もし['所在地_市区町村']がgdfに存在しない場合、列を追加する
+    if '所在地_都道府県' not in gdf.columns:
+        # 新しい列を作成し、None を設定する 
+        gdf['所在地_都道府県'] = None
+        print(f"[所在地_都道府県]属性を追加しました。")
     # GeoPackageの各行について繰り返し処理
     for index, row in gdf.iterrows():
         # 所在地_市区町村がNoneの場合をチェック
-        print(f"[所在地_市区町村]{row['所在地_市区町村']}を確認中。")
+        #print(f"[所在地_市区町村]{row['所在地_市区町村']}を確認中。")
         if row['所在地_市区町村'] is None:
             # print(f"所在地_市区町村にデータがありません、国土数値情報用行政区域コードから補完します。")
             # 国土数値情報用行政区域コードを取得
@@ -481,11 +486,23 @@ def find_final_city(gpkg_file, csv_file):
             if not csv_row.empty:
                 # CSVデータ内の最終市区町村名を取得
                 final_city = csv_row.iloc[-1]['最終市区町村名']
-                print(f"改正後のコード: {admin_code}, 最終市区町村名: {final_city}")
+                #print(f"改正後のコード: {admin_code}, 最終市区町村名: {final_city}")
                 # 最終市区町村名を元のデータに書き込む
                 gdf.at[index, '所在地_市区町村'] = final_city
-            else:
-                print(f"改正後のコード {admin_code} に対応する行がCSVデータ内に見つかりませんでした。処理をスキップします。")
+        if row['所在地_都道府県'] is None:
+            # print(f"所在地_市区町村にデータがありません、国土数値情報用行政区域コードから補完します。")
+            # 国土数値情報用行政区域コードを取得
+            admin_code = row['国土数値情報用行政区域コード']
+            # print(f"国土数値情報用行政区域コードは{admin_code}です。")
+            # CSVデータ内で改正後のコードを検索
+            csv_row = csv_data[csv_data['改正後のコード'] == admin_code]
+            # CSVデータ内で一致する行があるかチェック
+            if not csv_row.empty:
+                # CSVデータ内の最終市区町村名を取得
+                final_city = csv_row.iloc[-1]['都道府県名（漢字）']
+                #print(f"改正後のコード: {admin_code}, 都道府県名（漢字）: {final_city}")
+                # 最終市区町村名を元のデータに書き込む
+                gdf.at[index, '所在地_都道府県'] = final_city
     # 更新されたデータをGeoPackageファイルに保存する
     gdf.to_file(gpkg_file, driver='GPKG')
-    print(f"[所在地_市区町村]を補完しました。")
+    print(f"[所在地_都道府県][所在地_市区町村]を補完しました。")
