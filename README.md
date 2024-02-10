@@ -15,7 +15,7 @@
 　・公共施設の所在地が知りたい  
 
 1. GIFコードへの変換ルール  
-  [自治体標準オープンデータセット一覧の属性名称](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)　に統一  
+  [自治体標準オープンデータセット一覧の属性名称](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)　（01.公共施設一覧）に統一  
   国土数値情報 地域・施設 の属性は　[シェープファイルの属性について](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P28.html)　による  
   【緯度・経度】  
 ・ジオメトリより属性に付加  
