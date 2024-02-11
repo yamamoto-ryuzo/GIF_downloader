@@ -58,7 +58,7 @@ try:
     gpkg_file_path = 'result/digital_national_land_information.gpkg'
     GIF_functions.merge_geopackages(folder_path, gpkg_file_path)
 
-    ###
+    ### データ補完[所在地_都道府県][所在地_市区町村]
     csv_file_path = 'input_list/AdminiBoundary_CD.csv'
     GIF_functions.find_final_city(gpkg_file_path, csv_file_path)
 

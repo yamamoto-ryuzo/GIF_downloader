@@ -1,15 +1,15 @@
 # GIF_downloader  
 ## 開発主旨  
-[自治体標準オープンデータセット](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)をダウンロードして、不足しているデータがあれば自動補完してくれることを目指します。    
+[自治体標準オープンデータセット](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)をダウンロードして、不足しているデータがあれば自動補完してくれることを目指します。  
 ダウンロードしたデータは以下でPostgRESTとして公開しています。（サーバーの能力の問題から東京都、福岡県のみです。）  
 　https://github.com/yamamoto-ryuzo/PostgREST-installation-Japanese-memo/blob/main/使用方法.md  
 
-## 仕様
+## 仕様  
 　・Pythonを設置したフォルダ以下へのアクセス権および作業領域・データ保持が可能であること  
 　・EPSGコード不明はいったんEPSG：4612で処理　2024-01-26  
 
-## 補完用データセット
-### [国土数値情報 地域・施設](https://nlftp.mlit.go.jp/ksj/index.html)  []()
+## 補完用データセット  
+### [国土数値情報 地域・施設](https://nlftp.mlit.go.jp/ksj/index.html)  
 **【利用シーン】**  
 　・公共施設の座標が知りたい  
 　・公共施設の所在地が知りたい  
@@ -29,23 +29,25 @@
 
 1. 今後の予定  
   ・GIFへの属性統一推進  
-　　　取得したデータに不足しているGIFデータを補足する  
-  ・任意の県データ取得への変更  
+  　　取得したデータに不足しているGIFデータを補足する  
+  ・全国地方公共団体コード(廃盤コード)から[所在地_都道府県][所在地_市区町村]がない場合にデータを補完  
   ・EPSGコードの正しい設定  
-  ・市区町村名 住居表示と統合
+  ・市区町村名 住居表示と統合  
 　・全国地方公共団体コード  
-  ・全国地方公共団体コードから所在地_都道府県,所在地_市区町村がない場合にデータを補完
 
-1.設定情報  
+1. 対応状況  
+  ・国土数値情報用行政区域コードから、[所在地_都道府県][所在地_市区町村]を事前に補完（合併前廃盤コード未対応）  
+
+2. 設定情報  
   ・任意の県データ取得方法  
 　下記ファイルを参考に  
-　　https://github.com/yamamoto-ryuzo/GIF_downloader/blob/main/input_list/prefecture_code_list.csv   
+　　https://github.com/yamamoto-ryuzo/GIF_downloader/blob/main/input_list/prefecture_code_list.csv  
 　取得したい県を下記ファイルにコピー  
 　　https://github.com/yamamoto-ryuzo/GIF_downloader/blob/main/input_list/prefecture_code_list_work.csv  
 
-1. 使用例
+1. 使用例  
 　データベース　PostgreSQL　に設置し、PostgREST　にて公開している例はこちら  
-　https://github.com/yamamoto-ryuzo/PostgREST-installation-Japanese-memo/blob/main/使用方法.md
+　https://github.com/yamamoto-ryuzo/PostgREST-installation-Japanese-memo/blob/main/使用方法.md  
 
 ### [市区町村名 住居表示](https://nlftp.mlit.go.jp/cgi-bin/isj/dls/_choose_method.cgi)　[address.py](address.py)  
 **【利用シーン】**  
@@ -61,5 +63,5 @@
 1. 出力  
  二つのデータセットを統合し、住居データとして出力  
  'merged_jyuukyo.csv' ファイルが出力されます  
- workフォルダには作業の状況が残ります
+ workフォルダには作業の状況が残ります  
  ただし、work/extracted_filesフォルダ内は最後に作用した状況のみです  
