@@ -453,7 +453,7 @@ def merge_geopackages(input_folder, output_file):
     except Exception as e:
         print(f"エラーが発生しました: {e}")
 
-def find_final_city(gpkg_file, csv_file):
+def add_city_name(gpkg_file, csv_file):
     # CSVデータを事前に読み込む
     csv_data = pd.read_csv(csv_file, encoding='UTF-8', delimiter=',', dtype=str)
     csv_data = csv_data[['改正後のコード', '最終市区町村名', '都道府県名（漢字）']]
@@ -467,7 +467,7 @@ def find_final_city(gpkg_file, csv_file):
     if '所在地_都道府県' not in gdf.columns:
         gdf['所在地_都道府県'] = None
 
-    # '改正後のコード'のを重複を削除し、データの重複を事前に処理
+    # '改正後のコード'の重複を削除し、データの重複を事前に処理
     csv_data_unique = csv_data.drop_duplicates(subset=['改正後のコード'])
 
     # GeoPackageのデータとCSVデータをマージして補完処理を行う
@@ -482,3 +482,30 @@ def find_final_city(gpkg_file, csv_file):
     # 更新されたデータをGeoPackageファイルに書き込む
     gdf.to_file(gpkg_file, driver='GPKG')
     print("[所在地_都道府県][所在地_市区町村]を補完しました。")
+
+
+def change_new_city_code(gpkg_file, csv_file):
+    # CSVデータを事前に読み込む
+    csv_data = pd.read_csv(csv_file, encoding='UTF-8', delimiter=',', dtype=str)
+    # 必要な列を選択
+    csv_data = csv_data[['行政区域コード', 'コードの改定区分', '改正後のコード']]
+    # 'コードの改定区分'列が'欠番'の行を抽出
+    csv_data = csv_data[csv_data['コードの改定区分'] == '欠番']
+    print(f"欠番コード\n{csv_data}")
+    # GeoPackageファイルを読み込む
+    gdf = gpd.read_file(gpkg_file, dtype=str)
+    
+    # '行政区域コード'の重複を削除し、データの重複を事前に処理
+    csv_data_unique = csv_data.drop_duplicates(subset=['行政区域コード'])
+
+    # GeoPackageのデータとCSVデータをマージして補完処理を行う
+    gdf = gdf.merge(csv_data_unique, left_on='国土数値情報用行政区域コード', right_on='行政区域コード', how='left')
+
+    # 欠番の場合、国土数値情報用行政区域コードに改正後のコードを代入する
+    gdf.loc[gdf['コードの改定区分'] == '欠番', '国土数値情報用行政区域コード'] = gdf['改正後のコード']
+    # 不要な列を削除する
+    gdf.drop(columns=['行政区域コード', 'コードの改定区分', '改正後のコード'], inplace=True)
+    
+    # 更新されたデータをGeoPackageファイルに書き込む
+    gdf.to_file(gpkg_file, driver='GPKG')
+    print("[国土数値情報用行政区域コード]欠番が入力されているデータを最新[国土数値情報用行政区域コード]に修正しました。")

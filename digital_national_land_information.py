@@ -58,9 +58,14 @@ try:
     gpkg_file_path = 'result/digital_national_land_information.gpkg'
     GIF_functions.merge_geopackages(folder_path, gpkg_file_path)
 
+
+
     ### データ補完[所在地_都道府県][所在地_市区町村]
     csv_file_path = 'input_list/AdminiBoundary_CD.csv'
-    GIF_functions.find_final_city(gpkg_file_path, csv_file_path)
+    # 欠番の[国土数値情報用行政区域コード]を新しい[国土数値情報用行政区域コード]に変換
+    GIF_functions.change_new_city_code(gpkg_file_path, csv_file_path)
+    # [国土数値情報用行政区域コード]から[所在地_都道府県][所在地_市区町村]を追加
+    GIF_functions.add_city_name(gpkg_file_path, csv_file_path)
 
     ### 他の形式も作成
     csv_file_path = 'result/digital_national_land_information.csv'
