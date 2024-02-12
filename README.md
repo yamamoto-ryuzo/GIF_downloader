@@ -1,6 +1,6 @@
 # GIF_downloader  
 ## 開発主旨  
-[自治体標準オープンデータセット](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)をダウンロードして、不足しているデータがあれば自動補完してくれることを目指します。  
+[自治体標準オープンデータセット](https://www.digital.go.jp/resources/open_data/municipal-standard-data-set-test)をダウンロードして、不足しているデータがあれば、[国土数値情報 地域・施設](https://nlftp.mlit.go.jp/ksj/index.html)  により自動補完してくれることを目指します。  
 ダウンロードしたデータは以下でPostgRESTとして公開しています。（サーバーの能力の問題から東京都、福岡県のみです。）  
 　https://github.com/yamamoto-ryuzo/PostgREST-installation-Japanese-memo/blob/main/使用方法.md  
 
@@ -33,12 +33,14 @@
   ・全国地方公共団体コード(廃盤コード)から[所在地_都道府県][所在地_市区町村]がない場合にデータを補完  
   ・EPSGコードの正しい設定  
   ・市区町村名 住居表示と統合  
-　・全国地方公共団体コード  
+  ・全国地方公共団体コード整備  
+  ・[国土数値情報 地域・施設](https://nlftp.mlit.go.jp/ksj/index.html)が施設がデータ項目ごとに整理されており、場合によっては重複しているため統合が必要   
 
 1. 対応状況  
   ・国土数値情報用行政区域コードから、[所在地_都道府県][所在地_市区町村]を事前に補完（合併前廃盤コード未対応）  
+  ・国土数値情報用行政区域コード(廃盤コード)から[所在地_都道府県][所在地_市区町村]を事前に補完
 
-2. 設定情報  
+3. 設定情報  
   ・任意の県データ取得方法  
 　下記ファイルを参考に  
 　　https://github.com/yamamoto-ryuzo/GIF_downloader/blob/main/input_list/prefecture_code_list.csv  
