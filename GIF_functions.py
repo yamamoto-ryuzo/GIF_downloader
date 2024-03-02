@@ -138,7 +138,7 @@ def return_EPSG( search_string,file_name):
 ### 指定されたフォルダ内のすべてのShapefileの座標系を統一する関数。
 # 使用例:
 #folder_path = 'path/to/your/folder'
-#target_epsg = 'EPSG:4326'
+#target_epsg = 'EPSG:6668'
 #unify_crs_in_folder(folder_path, target_epsg)
 def unify_crs_in_folder(folder_path, target_epsg):
     non_crs_folder = os.path.join(folder_path, 'NON_CRS')
@@ -198,6 +198,7 @@ def convert_format(input_path, output_path, input_format='ESRI Shapefile', outpu
 
 ### 住居表示ファイルの取得及び結合
 def address_download(file_name,combined_data_file):
+# 初期化
     ### work/extracted_files　フォルダのクリーニング
     ### ※注意！　フォルダ内全ての一括処理があるため必ずその都度クリーニングを行うこと
     extracted_folder_path = 'work/extracted_files'
@@ -227,7 +228,7 @@ def address_download(file_name,combined_data_file):
             file_list = my_zip.namelist()
             print("ZIPファイル内のファイル一覧:")
             for file_name in file_list:
-                print(file_name)
+                print(f"　　・{file_name}")
             # ZIPファイル内の全てのファイルを解凍
             my_zip.extractall('work/extracted_files')
             ### 所定のフォルダ内のすべてのCSVファイルを結合
@@ -245,10 +246,8 @@ def address_download(file_name,combined_data_file):
             for filename in os.listdir(csv_directory):
                 if filename.endswith(".csv"):
                     file_path = os.path.join(csv_directory, filename)
-                if file_path == first_file_path:
-                    # 最初のファイルはスキップして、列名を引き継ぐ
-                    continue
-                df = pd.read_csv(file_path)
+                # 全ても文字列として読み込むように明示
+                df = pd.read_csv(file_path, dtype=str)
                 # 列名を引き継いで結合
                 combined_data = pd.concat([combined_data, df], ignore_index=True)
                 # 結合したデータを1つのCSVファイルに保存

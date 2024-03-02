@@ -35,7 +35,9 @@ try:
     GIF_functions.geo_download("input_list/digital_national_land_information_url_list.txt")
     folder_path = 'work/other_files_folder'
     ###座標系と統一
-    target_epsg = 'EPSG:4326'
+    # GIFの標準はJGD2011地理座標系 EPSG:6668
+    # GPSでよくつかわれる地理座標系（緯度経度）　WGS84　EPSG:4326
+    target_epsg = 'EPSG:6668'
     GIF_functions.unify_crs_in_folder(folder_path, target_epsg)
 
 ### フォルダ内のすべてのSHPにジオメトリの経度X、緯度Y座標属性値を追加

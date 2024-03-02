@@ -24,6 +24,8 @@ import os
 #データ分析作業を支援するためのモジュール
 import pandas as pd
 import shutil
+import geopandas as gpd
+from shapely.geometry import Point
 
 ###########################################
 ######## 自作関数ファイルを読み込み #########
@@ -51,17 +53,34 @@ try:
     print(f"市区町村名 住居表示－住居マスターが作成されました。")
 
     ###　住居マスターに街区マスターを結合する
-    # 1つ目のCSVファイルを読み込む
-    df1 = pd.read_csv('work/combined_jyuukyo.csv')
-    # 2つ目のCSVファイルを読み込む
-    df2 = pd.read_csv('work/combined_gaiku.csv')
+    # 住居マスターCSVファイルを全て文字列として読み込む
+    df1 = pd.read_csv('work/combined_jyuukyo.csv', dtype=str)
+    # 街区マスターCSVファイルを全て文字列として読み込む
+    df2 = pd.read_csv('work/combined_gaiku.csv', dtype=str)
+    # 初期化
+    merged_df = pd.DataFrame()
+    #df2 に重複がある場合削除
+    df2_unique = df2.drop_duplicates(subset='街区ユニークid')
     # 属性をキーにして結合
     # 結合方式はleftのすべての行が保持
     # 同じ属性が重複する場合は街区データ側に接尾辞を追加
-    merged_df = pd.merge(df1, df2, on='街区ユニークid', how='left', suffixes=('', '_街区'))
+    merged_df = pd.merge(df1, df2_unique, on='街区ユニークid', how='left', suffixes=('', '_街区'))
+    # 結合したい文字列の属性を選択し、新しい文字列の属性 ['所在地_連結表記'] を作成する
+    merged_df['所在地_連結表記'] = merged_df['位置参照情報_都道府県名']+merged_df['位置参照情報_市区町村名']+merged_df['位置参照情報_大字・町丁目名'] + merged_df['街区id'].str.lstrip("0") + "-" + merged_df['住居id'].str.lstrip("0")
+    csv_file_path = 'result/jyuukyo.csv'
     # 結合結果を新しいCSVファイルとして保存
-    merged_df.to_csv('result/merged_jyuukyo.csv', index=False)
+    merged_df.to_csv(csv_file_path, index=False)
     print(f"居住データベースが作成されました。")
+
+        # GPKGに変換して保存
+    # "latitude" と "longitude" 列からPointオブジェクトを作成する
+    geometry = [Point(xy) for xy in zip(merged_df['代表点_経度'], merged_df['代表点_緯度'])]
+    # GeoDataFrameを作成し、ポイントデータを追加する
+    gdf = gpd.GeoDataFrame(merged_df, geometry=geometry, crs="EPSG:6668")  # 初期の座標系を指定
+    # GeoPackage形式で保存
+    gdf.to_file("result/jyuukyo.gpkg", driver="GPKG")
+    print(f"GPKGが作成されました。")
+
     
 # エラー処理
 except FileNotFoundError:
