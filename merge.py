@@ -1,3 +1,8 @@
+#2024/03/03　データが多いととても遅く、メモリーエラーも発生
+#QGISのベクタ＞ベクタ管理ツール＞マージを利用
+
+#pip install pygeos
+
 import geopandas as gpd
 import pandas as pd
 
@@ -15,10 +20,11 @@ try:
     print(f"CRSを確認します：{gdf1.crs}/FILE:{file1}")
     if gdf1.crs != {'init': 'EPSG:6668'}:
         gdf1 = gdf1.to_crs(epsg=6668)
+        print(f"CRSをEPSG:6668に統一しました。")
     print(f"CRSを確認します：{gdf2.crs}/FILE:{file2}")
     if gdf2.crs != {'init': 'EPSG:6668'}:
         gdf2 = gdf2.to_crs(epsg=6668)
-    print(f"CRSをEPSG:6668に統一しました。")
+        print(f"CRSをEPSG:6668に統一しました。")
     # データをマージする
     merged_gdf = gpd.GeoDataFrame(pd.concat([gdf1, gdf2], ignore_index=True))
     # 出力ファイルパス

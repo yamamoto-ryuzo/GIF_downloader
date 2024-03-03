@@ -65,6 +65,9 @@ try:
     # 結合方式はleftのすべての行が保持
     # 同じ属性が重複する場合は街区データ側に接尾辞を追加
     merged_df = pd.merge(df1, df2_unique, on='街区ユニークid', how='left', suffixes=('', '_街区'))
+    # '_街区'のついた属性を削除
+    filtered_columns = merged_df.filter(regex='_街区$', axis=1).columns
+    merged_df.drop(columns=filtered_columns, inplace=True)
     # 結合したい文字列の属性を選択し、新しい文字列の属性 ['所在地_連結表記'] を作成する
     merged_df['所在地_連結表記'] = merged_df['位置参照情報_都道府県名']+merged_df['位置参照情報_市区町村名']+merged_df['位置参照情報_大字・町丁目名'] + merged_df['街区id'].str.lstrip("0") + "-" + merged_df['住居id'].str.lstrip("0")
     csv_file_path = 'result/jyuukyo.csv'
